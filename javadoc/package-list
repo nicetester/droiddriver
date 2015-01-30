@@ -1,0 +1,13 @@
+com.google.android.droiddriver
+com.google.android.droiddriver.actions
+com.google.android.droiddriver.actions.accessibility
+com.google.android.droiddriver.base
+com.google.android.droiddriver.exceptions
+com.google.android.droiddriver.finders
+com.google.android.droiddriver.helpers
+com.google.android.droiddriver.instrumentation
+com.google.android.droiddriver.runner
+com.google.android.droiddriver.scroll
+com.google.android.droiddriver.uiautomation
+com.google.android.droiddriver.util
+com.google.android.droiddriver.validators
