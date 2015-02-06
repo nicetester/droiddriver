@@ -1,0 +1,66 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 21
+    buildToolsVersion "21.1.2"
+
+    defaultConfig {
+        minSdkVersion 7
+        targetSdkVersion 21
+    }
+
+    sourceSets {
+        main  {
+            java {
+                srcDir '../src'
+            }
+        }
+    }
+}
+
+// http://stackoverflow.com/a/25265647
+android.libraryVariants.all { variant ->
+    def name = variant.buildType.name
+
+    if (name.equalsIgnoreCase("debug")) {
+        return; // Skip debug builds.
+    }
+    task("javadoc${variant.name.capitalize()}", type: Javadoc) {
+        description "Generates Javadoc for $variant.name."
+        options.links("http://docs.oracle.com/javase/7/docs/api/");
+        options.linksOffline("http://d.android.com/reference", "${android.sdkDirectory}/docs/reference");
+        source = variant.javaCompile.source
+        ext.androidJar = files(plugins.findPlugin("com.android.library").getBootClasspath())
+        classpath = files(variant.javaCompile.classpath.files) + ext.androidJar
+        exclude '**/internal/**'
+        failOnError false
+    }
+
+    task("bundleJavadoc${variant.name.capitalize()}", type: Jar) {
+        description "Bundles Javadoc into zip for $variant.name."
+        classifier = "javadoc"
+        archiveName = 'droiddriver-javadoc.jar'
+        from tasks["javadoc${variant.name.capitalize()}"]
+    }
+}
+
+task jar(type: Jar) {
+    from fileTree(dir: 'build/intermediates/classes/release')
+    archiveName = 'droiddriver.jar'
+}
+
+task sourceJar(type: Jar) {
+    from fileTree(dir: '../src')
+    archiveName = 'droiddriver-sources.jar'
+}
+
+// Create droiddriver.jar, droiddriver-javadoc.jar, and droiddriver-source.jar
+task github() << {
+    // task.execute() will skip dependencies
+    project.tasks.clean.execute()
+    project.tasks.compileReleaseJava.execute()
+    project.tasks.jar.execute()
+    project.tasks.javadocRelease.execute()
+    project.tasks.bundleJavadocRelease.execute()
+    project.tasks.sourceJar.execute()
+}
